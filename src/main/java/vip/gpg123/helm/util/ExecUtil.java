@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -17,20 +16,22 @@ import java.util.StringJoiner;
  * @description: TODO
  * @date 2023/10/30 11:50
  */
-@Slf4j
+
 public class ExecUtil {
 
     /**
      * 执行command-linux环境下
      */
-    public static HelmResultVo executeHelm(String[] command) {
+    public static HelmResultVo executeHelm(List<String> command) {
         StringJoiner message = new StringJoiner("\n");
         List<String> data = new ArrayList<>();
         int exitCode = 1;
         Process process = null;
         try {
+            //整合命令
+            String args = String.join(" ", command);
             //启动进程
-            process = Runtime.getRuntime().exec(command);
+            process = Runtime.getRuntime().exec(args);
             // 获取命令执行的输入流
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
             String line;
@@ -63,7 +64,7 @@ public class ExecUtil {
             }
         }
 
-        String logMessage = "执行命令：" + Arrays.toString(command) + ",执行结果：" + (exitCode == 0 ? "成功" : "失败");
+        String logMessage = "执行命令：" + command + ",执行结果：" + (exitCode == 0 ? "成功" : "失败");
         //log.info(logMessage);
         return HelmResultVo.deal(exitCode, message.toString(), data, logMessage);
     }

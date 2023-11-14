@@ -10,6 +10,11 @@ import java.util.List;
  */
 public interface Executeable {
 
+    /***
+     * 获取版本
+     */
+    Version getVersion();
+
     /**
      * 获取环境变量
      *

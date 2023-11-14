@@ -9,7 +9,7 @@ public class HelmApiApplicationTests {
     @Test
     public void contextLoads() {
         HelmClient client = new DefaultHelmClient();
-        client.getEnv();
+        client.getVersion();
 
     }
 
