@@ -1,7 +1,5 @@
 package vip.gpg123.helm.util;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -66,7 +64,8 @@ public class ExecUtil {
 
         String logMessage = "执行命令：" + command + ",执行结果：" + (exitCode == 0 ? "成功" : "失败");
         //log.info(logMessage);
-        return HelmResultVo.deal(exitCode, message.toString(), data, logMessage);
+        String result = String.join(",", data);
+        return HelmResultVo.deal(exitCode, message.toString(), result, logMessage);
     }
 
 

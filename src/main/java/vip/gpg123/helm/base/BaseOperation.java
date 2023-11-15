@@ -1,6 +1,7 @@
 package vip.gpg123.helm.base;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONUtil;
 import cn.hutool.system.OsInfo;
 import cn.hutool.system.SystemUtil;
 import vip.gpg123.helm.client.Executeable;
@@ -29,16 +30,11 @@ public class BaseOperation implements Executeable {
         List<String> init = prefix();
         init.add("helm");
         init.add("version");
+        init.add("--template={\\\"version\\\":\\\"{{.Version}}\\\",\\\"gitCommit\\\":\\\"{{.GitCommit}}\\\",\\\"gitTreeState\\\":\\\"{{.GitTreeState}}\\\",\\\"goVersion\\\":\\\"{{.GoVersion}}\\\"}");
         HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
         // 处理
-        List<String> resultList = (List<String>) helmResultVo.getResult();
-        Object object = resultList.get(0).replace("version.BuildInfo", "");
-        //
-        Version version = new Version();
-
-        System.out.println(version.toString());
-
-        return null;
+        Object object = helmResultVo.getResult();
+        return JSONUtil.toBean(object.toString(), Version.class);
     }
 
     /**
