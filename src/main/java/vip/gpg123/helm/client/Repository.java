@@ -1,4 +1,8 @@
-package vip.gpg123.helm.repo;
+package vip.gpg123.helm.client;
+
+import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * @author gaopuguang_zz
@@ -6,7 +10,8 @@ package vip.gpg123.helm.repo;
  * @description: TODO
  * @date 2023/10/30 12:00
  */
-public class Repo {
+@Data
+public class Repository implements Serializable {
 
     private String name;
 

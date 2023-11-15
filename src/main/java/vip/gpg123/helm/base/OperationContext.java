@@ -2,7 +2,7 @@ package vip.gpg123.helm.base;
 
 import lombok.Getter;
 import vip.gpg123.helm.client.Version;
-import vip.gpg123.helm.env.Env;
+import vip.gpg123.helm.client.Env;
 
 /**
  * @author gaopuguang_zz

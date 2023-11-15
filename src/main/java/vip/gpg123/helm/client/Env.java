@@ -1,4 +1,4 @@
-package vip.gpg123.helm.env;
+package vip.gpg123.helm.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
