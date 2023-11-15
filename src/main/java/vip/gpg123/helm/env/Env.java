@@ -1,12 +1,19 @@
 package vip.gpg123.helm.env;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.Getter;
+import lombok.ToString;
+
+import java.io.Serializable;
+
 /**
  * @author gaopuguang_zz
  * @version 1.0
- * @description: TODO
- * @date 2023/10/30 11:33
  */
-public class Env {
+@Data
+@ToString
+public class Env implements Serializable {
 
     private String helmBin;
 

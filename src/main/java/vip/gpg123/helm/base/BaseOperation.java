@@ -12,9 +12,7 @@ import vip.gpg123.helm.util.ExecUtil;
 import vip.gpg123.helm.util.HelmResultVo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author gaopuguang_zz
@@ -49,8 +47,17 @@ public class BaseOperation implements Executeable {
         init.add("env");
         HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
         //处理为map
-
-        return null;
+        String res = (String) helmResultVo.getResult();
+        String[] arrStr = res.split(",");
+        List<String> replaceList = new ArrayList<>();
+        for (String str : arrStr) {
+            String replaceAfter = "\"" + str.replaceFirst("=", "\":").replace("\\","/");
+            replaceList.add(replaceAfter);
+        }
+        String jsonStr = "{" + String.join(",", replaceList) + "}";
+        System.out.println(jsonStr);
+        Env env = JSONUtil.toBean(jsonStr, Env.class);
+        return env;
     }
 
     /**

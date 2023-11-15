@@ -14,4 +14,10 @@ public class HelmApiApplicationTests {
         System.out.println(version);
     }
 
+    @Test
+    public void getEnv() {
+        HelmClient client = new DefaultHelmClient();
+        client.getEnvironment();
+    }
+
 }
