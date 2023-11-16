@@ -7,6 +7,7 @@ import cn.hutool.system.SystemUtil;
 import vip.gpg123.helm.client.Executable;
 import vip.gpg123.helm.client.HelmRelease;
 import vip.gpg123.helm.client.InstallResult;
+import vip.gpg123.helm.client.ReleaseStatus;
 import vip.gpg123.helm.client.Version;
 import vip.gpg123.helm.client.Env;
 import vip.gpg123.helm.client.Repository;
@@ -81,6 +82,41 @@ public class BaseOperation implements Executable {
     }
 
     /**
+     * 刷新本地仓库索引
+     *
+     * @param path p
+     */
+    @Override
+    public boolean repoIndex(String path) {
+        List<String> init = prefix();
+        init.add("helm");
+        init.add("repo");
+        init.add("index");
+        // 默认为当前文件夹
+        String repoPath = path.isEmpty() ? "/" : path;
+        init.add(repoPath);
+        HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
+        return helmResultVo.getExitCode() == 0;
+    }
+
+    /**
+     * 更新仓库索引
+     *
+     * @param repoName rn
+     * @return b
+     */
+    @Override
+    public boolean repoUpdate(String repoName) {
+        List<String> init = prefix();
+        init.add("helm");
+        init.add("repo");
+        init.add("update");
+        init.add(repoName);
+        HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
+        return helmResultVo.getExitCode() == 0;
+    }
+
+    /**
      * 获取部署实例
      *
      * @param namespace ns
@@ -101,6 +137,27 @@ public class BaseOperation implements Executable {
     }
 
     /**
+     * 获取部署状态
+     *
+     * @param namespace   ns
+     * @param releaseName rn
+     * @return rs
+     */
+    @Override
+    public ReleaseStatus getReleaseStatus(String namespace, String releaseName) {
+        List<String> init = prefix();
+        init.add("helm");
+        init.add("status");
+        init.add(releaseName);
+        init.add(namespace.isEmpty() ? "-n default" : "-n " + namespace);
+        init.add("--output=json");
+        HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
+        Object object = helmResultVo.getResult();
+        String jsonStr = (String) object;
+        return JSONUtil.toBean(jsonStr, ReleaseStatus.class);
+    }
+
+    /**
      * 安装
      *
      * @param namespace   ns
@@ -109,7 +166,7 @@ public class BaseOperation implements Executable {
      * @return ir
      */
     @Override
-    public InstallResult install(String namespace, String releaseName, String chartName) {
+    public InstallResult installWithDefault(String namespace, String releaseName, String chartName) {
         List<String> init = prefix();
         init.add("helm");
         init.add("install");
@@ -119,13 +176,12 @@ public class BaseOperation implements Executable {
         init.add("--output=json");
         HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
         Object object = helmResultVo.getResult();
-        String JsonStr = (String) object;
+        String jsonStr = (String) object;
         if (helmResultVo.getExitCode() == 0) {
-            InstallResult installResult = JSONUtil.toBean(JsonStr, InstallResult.class);
-
+            return JSONUtil.toBean(jsonStr, InstallResult.class);
+        } else {
+            throw new RuntimeException(helmResultVo.getMessage());
         }
-
-        return null;
     }
 
     /**
@@ -136,7 +192,14 @@ public class BaseOperation implements Executable {
      * @return r
      */
     @Override
-    public InstallResult installWithParams(String namespace, List<String> params) {
+    public InstallResult installWithParams(String namespace, String releaseName, String chartName, List<String> params) {
+        List<String> init = prefix();
+        init.add("helm");
+        init.add("install");
+        init.add(releaseName);
+        init.add(chartName);
+        init.add(namespace.isEmpty() ? "" : "-n " + namespace);
+        init.add("--output=json");
         return null;
     }
 
@@ -148,7 +211,15 @@ public class BaseOperation implements Executable {
      * @return rs
      */
     @Override
-    public InstallResult installWithFile(String namespace, String filePath) {
+    public InstallResult installWithFile(String namespace, String releaseName, String chartName, String filePath) {
+        List<String> init = prefix();
+        init.add("helm");
+        init.add("install");
+        init.add("");
+        init.add(releaseName);
+        init.add(chartName);
+        init.add(namespace.isEmpty() ? "" : "-n " + namespace);
+        init.add("--output=json");
         return null;
     }
 
@@ -161,7 +232,27 @@ public class BaseOperation implements Executable {
      */
     @Override
     public InstallResult installWithInputStream(String namespace, InputStream inputStream) {
+        List<String> init = prefix();
+        init.add("helm");
+        init.add("install");
         return null;
+    }
+
+    /**
+     * 卸载
+     *
+     * @param namespace   ns
+     * @param releaseName rn
+     * @return b
+     */
+    @Override
+    public boolean uninstall(String namespace, String releaseName) {
+        List<String> init = prefix();
+        init.add("helm");
+        init.add("uninstall");
+        init.add(namespace.isEmpty() ? "-n default" : "-n " + namespace);
+        HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
+        return helmResultVo.getExitCode() == 0;
     }
 
     /**

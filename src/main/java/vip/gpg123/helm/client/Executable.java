@@ -28,6 +28,22 @@ public interface Executable {
      */
     List<Repository> getRepos();
 
+    /**
+     * 刷新本地仓库索引
+     *
+     * @param path p
+     * @return b
+     */
+    boolean repoIndex(String path);
+
+    /**
+     * 更新仓库索引
+     *
+     * @param repoName rn
+     * @return b
+     */
+    boolean repoUpdate(String repoName);
+
 
     /**
      * 获取部署实例
@@ -37,35 +53,47 @@ public interface Executable {
      */
     List<HelmRelease> getReleaseList(String namespace);
 
+    /**
+     * 获取部署状态
+     * @param namespace ns
+     * @param releaseName rn
+     * @return rs
+     */
+    ReleaseStatus getReleaseStatus(String namespace, String releaseName);
+
 
     /**
      * 默认参数安装
      *
-     * @param namespace ns
+     * @param namespace   ns
      * @param releaseName rn
-     * @param chartName cn
+     * @param chartName   cn
      * @return ir
      */
-    InstallResult install(String namespace, String releaseName, String chartName);
+    InstallResult installWithDefault(String namespace, String releaseName, String chartName);
 
     /**
      * 指定参数安装
      *
      * @param namespace ns
+     * @param releaseName rn
+     * @param chartName cn
      * @param params    p
      * @return r
      */
-    InstallResult installWithParams(String namespace, List<String> params);
+    InstallResult installWithParams(String namespace, String releaseName, String chartName, List<String> params);
 
 
     /**
      * 使用文件安装
      *
      * @param namespace ns
+     * @param releaseName rn
+     * @param chartName cn
      * @param filePath  fp
      * @return rs
      */
-    InstallResult installWithFile(String namespace, String filePath);
+    InstallResult installWithFile(String namespace, String releaseName, String chartName, String filePath);
 
     /**
      * 使用输入流安装
@@ -77,4 +105,11 @@ public interface Executable {
     InstallResult installWithInputStream(String namespace, InputStream inputStream);
 
 
+    /**
+     * 卸载
+     * @param namespace ns
+     * @param releaseName rn
+     * @return b
+     */
+    boolean uninstall(String namespace,String releaseName);
 }

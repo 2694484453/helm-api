@@ -11,7 +11,7 @@ import java.io.Serializable;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class InstallResult extends ReleaseStatus implements Serializable {
+public class ReleaseStatus extends Status implements Serializable {
 
 
 }
