@@ -1,5 +1,6 @@
 package vip.gpg123.helm;
 
+import io.fabric8.kubernetes.api.model.Config;
 import org.junit.Test;
 import vip.gpg123.helm.client.DefaultHelmClient;
 import vip.gpg123.helm.client.HelmClient;
@@ -77,6 +78,13 @@ public class HelmApiApplicationTests {
         System.out.println(releaseStatus);
     }
 
+    @Test
+    public void getCurrentContext() {
+        HelmClient client = new DefaultHelmClient();
+        Config config = client.getConfigDefault();
+        System.out.println(config);
+        System.out.println(client.getCurrentContext());
+    }
 
 
 }

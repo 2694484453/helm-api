@@ -3,20 +3,23 @@ package vip.gpg123.helm.base;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import cn.hutool.setting.yaml.YamlUtil;
 import cn.hutool.system.OsInfo;
 import cn.hutool.system.SystemUtil;
+import vip.gpg123.helm.client.Env;
 import vip.gpg123.helm.client.Executable;
 import vip.gpg123.helm.client.HelmRelease;
 import vip.gpg123.helm.client.InstallResult;
 import vip.gpg123.helm.client.ReleaseStatus;
-import vip.gpg123.helm.client.Version;
-import vip.gpg123.helm.client.Env;
 import vip.gpg123.helm.client.Repository;
+import vip.gpg123.helm.client.Version;
 import vip.gpg123.helm.util.ExecUtil;
 import vip.gpg123.helm.util.HelmResultVo;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -215,6 +218,35 @@ public class BaseOperation implements Executable {
     }
 
     /**
+     * 安装json字符串
+     *
+     * @param namespace   ns
+     * @param releaseName rn
+     * @param chartName   cn
+     * @param jsonStr     j
+     * @return r
+     */
+    @Override
+    public InstallResult installWithJsonStr(String namespace, String releaseName, String chartName, String jsonStr) {
+        // 处理字符串
+        if (jsonStr.isEmpty()) {
+            throw new RuntimeException("jsonStr is empty!");
+        }
+        JSONObject jsonObject = JSONUtil.parseObj(jsonStr);
+        File file = FileUtil.createTempFile(UUID.randomUUID().toString(), ".yaml", true);
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            // 写入文件
+            YamlUtil.dump(jsonObject, fileWriter);
+            fileWriter.close();
+            // 安装文件
+            return installWithFile(namespace, releaseName, chartName, file.getAbsolutePath());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * 使用文件安装
      *
      * @param namespace ns
@@ -303,7 +335,7 @@ public class BaseOperation implements Executable {
         init.add("uninstall");
         init.add(namespace.isEmpty() ? "" : "-n " + namespace);
         HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
-        if (helmResultVo.getExitCode() == 0){
+        if (helmResultVo.getExitCode() == 0) {
             return true;
         }
         throw new RuntimeException(helmResultVo.getMessage());

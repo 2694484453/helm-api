@@ -87,6 +87,17 @@ public interface Executable {
 
 
     /**
+     * 安装json字符串
+     * @param namespace ns
+     * @param releaseName rn
+     * @param chartName cn
+     * @param jsonStr j
+     * @return r
+     */
+    InstallResult installWithJsonStr(String namespace, String releaseName, String chartName, String jsonStr);
+
+
+    /**
      * 使用文件安装
      *
      * @param namespace   ns
@@ -96,6 +107,7 @@ public interface Executable {
      * @return rs
      */
     InstallResult installWithFile(String namespace, String releaseName, String chartName, String filePath);
+
 
     /**
      * 使用输入流安装
@@ -111,7 +123,8 @@ public interface Executable {
 
     /**
      * 获取values
-     * @param namespace ns
+     *
+     * @param namespace   ns
      * @param releaseName rn
      * @return r
      */
