@@ -2,6 +2,7 @@ package vip.gpg123.helm.client;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Administrator
@@ -55,7 +56,8 @@ public interface Executable {
 
     /**
      * 获取部署状态
-     * @param namespace ns
+     *
+     * @param namespace   ns
      * @param releaseName rn
      * @return rs
      */
@@ -75,10 +77,10 @@ public interface Executable {
     /**
      * 指定参数安装
      *
-     * @param namespace ns
+     * @param namespace   ns
      * @param releaseName rn
-     * @param chartName cn
-     * @param params    p
+     * @param chartName   cn
+     * @param params      p
      * @return r
      */
     InstallResult installWithParams(String namespace, String releaseName, String chartName, List<String> params);
@@ -87,10 +89,10 @@ public interface Executable {
     /**
      * 使用文件安装
      *
-     * @param namespace ns
+     * @param namespace   ns
      * @param releaseName rn
-     * @param chartName cn
-     * @param filePath  fp
+     * @param chartName   cn
+     * @param filePath    fp
      * @return rs
      */
     InstallResult installWithFile(String namespace, String releaseName, String chartName, String filePath);
@@ -100,16 +102,27 @@ public interface Executable {
      *
      * @param namespace   ns
      * @param inputStream in
+     * @param releaseName rn
+     * @param chartName   cn
      * @return rs
      */
-    InstallResult installWithInputStream(String namespace, InputStream inputStream);
+    InstallResult installWithInputStream(String namespace, String releaseName, String chartName, InputStream inputStream);
 
 
     /**
-     * 卸载
+     * 获取values
      * @param namespace ns
+     * @param releaseName rn
+     * @return r
+     */
+    Map<String, Object> getReleaseValues(String namespace, String releaseName);
+
+    /**
+     * 卸载
+     *
+     * @param namespace   ns
      * @param releaseName rn
      * @return b
      */
-    boolean uninstall(String namespace,String releaseName);
+    boolean uninstall(String namespace, String releaseName);
 }

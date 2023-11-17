@@ -1,5 +1,7 @@
 package vip.gpg123.helm.base;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.system.OsInfo;
@@ -14,9 +16,13 @@ import vip.gpg123.helm.client.Repository;
 import vip.gpg123.helm.util.ExecUtil;
 import vip.gpg123.helm.util.HelmResultVo;
 
+import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author gaopuguang_zz
@@ -200,7 +206,12 @@ public class BaseOperation implements Executable {
         init.add(chartName);
         init.add(namespace.isEmpty() ? "" : "-n " + namespace);
         init.add("--output=json");
-        return null;
+        HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
+        String jsonStr = (String) helmResultVo.getResult();
+        if (helmResultVo.getExitCode() == 0) {
+            return JSONUtil.toBean(jsonStr, InstallResult.class);
+        }
+        throw new RuntimeException(helmResultVo.getMessage());
     }
 
     /**
@@ -215,12 +226,18 @@ public class BaseOperation implements Executable {
         List<String> init = prefix();
         init.add("helm");
         init.add("install");
-        init.add("");
+        init.add("-f");
+        init.add(filePath);
         init.add(releaseName);
         init.add(chartName);
         init.add(namespace.isEmpty() ? "" : "-n " + namespace);
         init.add("--output=json");
-        return null;
+        HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
+        String jsonStr = (String) helmResultVo.getResult();
+        if (helmResultVo.getExitCode() == 0) {
+            return JSONUtil.toBean(jsonStr, InstallResult.class);
+        }
+        throw new RuntimeException(helmResultVo.getMessage());
     }
 
     /**
@@ -231,11 +248,45 @@ public class BaseOperation implements Executable {
      * @return rs
      */
     @Override
-    public InstallResult installWithInputStream(String namespace, InputStream inputStream) {
+    public InstallResult installWithInputStream(String namespace, String releaseName, String chartName, InputStream inputStream) {
+        // 处理is写入临时文件
+        File file = FileUtil.createTempFile(UUID.randomUUID().toString(), ".yaml", true);
+        OutputStream outputStream = FileUtil.getOutputStream(file);
+        IoUtil.copy(inputStream, outputStream);
+        try {
+            // 关闭
+            inputStream.close();
+            outputStream.close();
+            InstallResult installResult = installWithFile(namespace, releaseName, chartName, file.getAbsolutePath());
+            // 安装完成后删除临时文件
+            FileUtil.del(file);
+            return installResult;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 获取values
+     *
+     * @param namespace   ns
+     * @param releaseName rn
+     * @return r
+     */
+    @Override
+    public Map<String, Object> getReleaseValues(String namespace, String releaseName) {
         List<String> init = prefix();
         init.add("helm");
-        init.add("install");
-        return null;
+        init.add("get");
+        init.add("values");
+        init.add(releaseName);
+        init.add(namespace.isEmpty() ? "" : "-n " + namespace);
+        init.add("--output=json");
+        HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
+        if (helmResultVo.getExitCode() == 0) {
+            return (Map<String, Object>) helmResultVo.getResult();
+        }
+        throw new RuntimeException(helmResultVo.getMessage());
     }
 
     /**
@@ -250,9 +301,12 @@ public class BaseOperation implements Executable {
         List<String> init = prefix();
         init.add("helm");
         init.add("uninstall");
-        init.add(namespace.isEmpty() ? "-n default" : "-n " + namespace);
+        init.add(namespace.isEmpty() ? "" : "-n " + namespace);
         HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
-        return helmResultVo.getExitCode() == 0;
+        if (helmResultVo.getExitCode() == 0){
+            return true;
+        }
+        throw new RuntimeException(helmResultVo.getMessage());
     }
 
     /**
