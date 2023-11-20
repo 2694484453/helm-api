@@ -1,6 +1,11 @@
 package vip.gpg123.helm;
 
+import io.fabric8.kubernetes.api.model.Cluster;
 import io.fabric8.kubernetes.api.model.Config;
+import io.fabric8.kubernetes.api.model.ConfigBuilder;
+import io.fabric8.kubernetes.api.model.Context;
+import io.fabric8.kubernetes.api.model.NamedCluster;
+import io.fabric8.kubernetes.api.model.NamedContext;
 import org.junit.Test;
 import vip.gpg123.helm.client.DefaultHelmClient;
 import vip.gpg123.helm.client.HelmClient;
@@ -86,5 +91,19 @@ public class HelmApiApplicationTests {
         System.out.println(client.getCurrentContext());
     }
 
+    @Test
+    public void export(){
+        HelmClient client = new DefaultHelmClient();
+        client.exportDefaultConfigToFile("D://config11-20");
+    }
+
+    @Test
+    public void add(){
+        HelmClient client = new DefaultHelmClient();
+        ConfigBuilder configBuilder = new ConfigBuilder();
+        configBuilder.setNewClusterLike(0,new NamedCluster(new Cluster(),"demo"));
+        configBuilder.setNewContextLike(0,new NamedContext(new Context(),"demo-context"));
+        client.addCluster(configBuilder);
+    }
 
 }

@@ -38,6 +38,20 @@ public interface Executable {
     boolean repoIndex(String path);
 
     /**
+     * 添加仓库
+     * @param repoName rn
+     * @return r
+     */
+    boolean repoAdd(String repoName);
+
+    /**
+     * 移除仓库
+     * @param repoName rn
+     * @return r
+     */
+    boolean repoRemove(String repoName);
+
+    /**
      * 更新仓库索引
      *
      * @param repoName rn

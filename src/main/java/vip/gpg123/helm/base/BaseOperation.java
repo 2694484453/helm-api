@@ -109,6 +109,40 @@ public class BaseOperation implements Executable {
     }
 
     /**
+     * 添加仓库
+     *
+     * @param repoName rn
+     * @return r
+     */
+    @Override
+    public boolean repoAdd(String repoName) {
+        List<String> init = prefix();
+        init.add("helm");
+        init.add("repo");
+        init.add("add");
+        init.add(repoName);
+        HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
+        return helmResultVo.getExitCode() == 0;
+    }
+
+    /**
+     * 移除仓库
+     *
+     * @param repoName rn
+     * @return r
+     */
+    @Override
+    public boolean repoRemove(String repoName) {
+        List<String> init = prefix();
+        init.add("helm");
+        init.add("repo");
+        init.add("remove");
+        init.add(repoName);
+        HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
+        return helmResultVo.getExitCode() == 0;
+    }
+
+    /**
      * 更新仓库索引
      *
      * @param repoName rn
