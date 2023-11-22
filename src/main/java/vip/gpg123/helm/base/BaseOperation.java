@@ -369,10 +369,48 @@ public class BaseOperation implements Executable {
         init.add("uninstall");
         init.add(namespace.isEmpty() ? "" : "-n " + namespace);
         HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
-        if (helmResultVo.getExitCode() == 0) {
-            return true;
+        if (helmResultVo.getExitCode() != 0) {
+            throw new RuntimeException(helmResultVo.getMessage());
         }
-        throw new RuntimeException(helmResultVo.getMessage());
+        return true;
+    }
+
+    /**
+     * 检查
+     *
+     * @param chartName cn
+     * @return s
+     */
+    @Override
+    public String lint(String chartName) {
+        List<String> init = prefix();
+        init.add("helm");
+        init.add("lint");
+        init.add(chartName);
+        HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
+        if (helmResultVo.getExitCode() != 0) {
+            throw new RuntimeException(helmResultVo.getMessage());
+        }
+        return (String) helmResultVo.getResult();
+    }
+
+    /**
+     * 渲染
+     *
+     * @param chartName cn
+     * @return r
+     */
+    @Override
+    public String template(String chartName) {
+        List<String> init = prefix();
+        init.add("helm");
+        init.add("template");
+        init.add(chartName);
+        HelmResultVo helmResultVo = ExecUtil.executeHelm(init);
+        if (helmResultVo.getExitCode() != 0) {
+            throw new RuntimeException(helmResultVo.getMessage());
+        }
+        return (String) helmResultVo.getResult();
     }
 
     /**
@@ -385,18 +423,17 @@ public class BaseOperation implements Executable {
         OsInfo osInfo = SystemUtil.getOsInfo();
         if (ObjectUtil.isNotEmpty(osInfo)) {
             String osName = osInfo.getName();
-            switch (osName) {
-                case "Linux":
-                    list.add("/bin/sh");
-                    break;
-                case "Windows":
-                    list.add("cmd.exe");
-                    list.add("/c");
-                    break;
-                case "Unix":
-                    break;
-                default:
-                    break;
+            System.out.println(osName);
+            if (osInfo.isMac()) {
+                list.add("/bin/bash");
+            }
+            if (osInfo.isLinux()) {
+                list.add("/bin/bash");
+                list.add("-c");
+            }
+            if (osInfo.isWindows()) {
+                list.add("cmd.exe");
+                list.add("/c");
             }
         }
         return list;

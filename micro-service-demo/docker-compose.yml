@@ -1,0 +1,12 @@
+version: "3"
+services:
+  demo:
+    image: helm-api:0.0.1
+    container_name: helm
+    entrypoint: ["/bin/sh","-c","sleep 9999"]
+    command:
+      - /bin/sh
+      - -c
+      - sleep 999999
+    ports:
+      - 8090:8080

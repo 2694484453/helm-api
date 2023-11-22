@@ -152,4 +152,18 @@ public interface Executable {
      * @return b
      */
     boolean uninstall(String namespace, String releaseName);
+
+    /**
+     * 检查
+     * @param chartName cn
+     * @return s
+     */
+    String lint(String chartName);
+
+    /**
+     * 渲染
+     * @param chartName cn
+     * @return r
+     */
+    String template(String chartName);
 }
